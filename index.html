@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upcoming US Holidays</title>
+</head>
+<body>
+    <h1>Upcoming US Holidays</h1>
+    <ul id="holidays-list"></ul>
+
+    <script>
+        // Google Calendar API endpoint for US Holidays
+        const calendarApiUrl = 'https://www.googleapis.com/calendar/v3/calendars/en.usa%23holiday%40group.v.calendar.google.com/events?key=AIzaSyA6MT4EYN700Pentdwl1CTnZmRnjH--wxU';
+
+        // Function to fetch US Holidays from Google Calendar API
+        async function fetchHolidays() {
+            try {
+                const response = await fetch(calendarApiUrl);
+                const data = await response.json();
+                return data.items;
+            } catch (error) {
+                console.error('Error fetching holidays:', error);
+                return [];
+            }
+        }
+
+        // Function to render holidays as a list
+        function renderHolidays(holidays) {
+            const holidaysList = document.getElementById('holidays-list');
+            const today = new Date()
+            today.setHours(0,0,0,0)
+            holidays
+                .sort((a, b) => new Date(a.start.date) - new Date(b.start.date))
+            const futureHolidays = holidays.filter(holiday => {
+                const holidayDate = new Date(holiday.start.date);
+                return holidayDate >= today;
+            })
+            futureHolidays.forEach(holiday => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${holiday.summary} - ${holiday.start.date}`;
+                holidaysList.appendChild(listItem);
+            });
+        }
+
+        // Entry point
+        async function init() {
+            const holidays = await fetchHolidays();
+            renderHolidays(holidays);
+        }
+
+        // Call init function to start the process
+        init();
+    </script>
+</body>
+</html>
